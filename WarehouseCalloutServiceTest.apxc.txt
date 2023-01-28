@@ -1,0 +1,16 @@
+@IsTest
+private class WarehouseCalloutServiceTest {
+    // implement your mock callout test here
+    @isTest
+    static void method1(){
+        test.setMock(HttpCalloutMock.class, new WarehouseCalloutServiceMock());
+        
+        test.startTest();
+        Id jobId=system.enqueueJob(new WarehouseCalloutService());
+        test.stopTest();
+        
+        AsyncApexJob aaj = [SELECT Id, Status, NumberOfErrors FROM AsyncApexJob WHERE Id = :jobID];
+        system.assertEquals('Completed', aaj.Status);
+        System.assertEquals(0, aaj.NumberOfErrors);
+    }
+}
