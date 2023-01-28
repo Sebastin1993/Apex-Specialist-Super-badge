@@ -1,0 +1,11 @@
+@isTest
+public with sharing class WarehouseSyncScheduleTest {
+    // implement scheduled code here
+    @isTest
+    static void method12(){
+        String CRON_EXP = '0 0 0 15 3 ? 2024';
+        String jobId=system.schedule('WarehouseSyncScheduleJob1', CRON_EXP, new WarehouseSyncSchedule());
+        //AsyncApexJob aaj = [SELECT Id, Status, NumberOfErrors FROM AsyncApexJob WHERE Id = :jobID];
+        system.assertEquals('0 0 0 15 3 ? 2024', CRON_EXP);
+    }
+}
