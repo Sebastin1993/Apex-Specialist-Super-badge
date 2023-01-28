@@ -1,0 +1,33 @@
+public with sharing class WarehouseCalloutService implements Queueable, Database.AllowsCallouts{
+	public List<Product2> prodList=new List<Product2>();
+    private static final String WAREHOUSE_URL = 'https://th-superbadge-apex.herokuapp.com/equipment';
+    
+    public void execute(QueueableContext context){
+        http h=new http();
+        httpRequest request =new httpRequest();
+        request.setEndpoint(WAREHOUSE_URL);
+        request.setMethod('GET');
+        HttpResponse response = h.send(request);
+        if(response.getStatusCode() == 200) {
+            //List<json> =response.getBody();
+            List<object> josonList = (List<object>)JSON.deserializeUntyped(response.getBody());
+            
+            for(object j:josonList){
+                map<string,object> obj=(map<string,object>)j;
+                Product2 p=new Product2();
+                p.Replacement_Part__c=true;
+                p.Cost__c=(Decimal)obj.get('cost');
+                p.Lifespan_Months__c=(Decimal)obj.get('lifespan');
+                p.Warehouse_SKU__c=(String)obj.get('_id');
+                p.Maintenance_Cycle__c=(Decimal)obj.get('maintenanceperiod');
+                p.Name=(string)obj.get('name');
+                //p.QuantityUnitOfMeasure=(Integer)obj.get('quantity');
+                //p.StockKeepingUnit=(String)obj.get('sku');
+                prodList.add(p);
+            }
+        }
+        if(!prodList.isEmpty()){
+            upsert prodList Warehouse_SKU__c;
+        }
+    }
+}
